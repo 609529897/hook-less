@@ -23,9 +23,73 @@ function State<S>(props: StateProps<S>) {
   return <>{children(state)}</>;
 }
 
-function Reducer() {}
-function Ref() {}
+function Reducer<R extends React.ReducerWithoutAction<any>, I>(props: {
+  reducer: R;
+  initializerArg: I;
+  initializer: (arg: I) => React.ReducerStateWithoutAction<R>;
+  children: (
+    state: [React.ReducerStateWithoutAction<R>, React.DispatchWithoutAction]
+  ) => JSX.Element;
+}): JSX.Element;
 
+function Reducer<R extends React.ReducerWithoutAction<any>>(props: {
+  reducer: R;
+  initializerArg: React.ReducerStateWithoutAction<R>;
+  initializer?: undefined;
+  children: (
+    state: [React.ReducerStateWithoutAction<R>, React.DispatchWithoutAction]
+  ) => JSX.Element;
+}): JSX.Element;
+
+function Reducer<R extends React.Reducer<any, any>, I>(props: {
+  reducer: R;
+  initializerArg: I & React.ReducerState<R>;
+  initializer: (arg: I & React.ReducerState<R>) => React.ReducerState<R>;
+  children: (
+    state: [React.ReducerState<R>, React.Dispatch<React.ReducerAction<R>>]
+  ) => JSX.Element;
+}): JSX.Element;
+
+function Reducer<R extends React.Reducer<any, any>, I>(props: {
+  reducer: R;
+  initializerArg: I;
+  initializer: (arg: I) => React.ReducerState<R>;
+  children: (
+    state: [React.ReducerState<R>, React.Dispatch<React.ReducerAction<R>>]
+  ) => JSX.Element;
+}): JSX.Element;
+
+function Reducer<R extends React.Reducer<any, any>>(props: {
+  reducer: R;
+  initializerArg: React.ReducerState<R>;
+  initializer?: undefined;
+  children: (
+    state: [React.ReducerState<R>, React.Dispatch<React.ReducerAction<R>>]
+  ) => JSX.Element;
+}): JSX.Element;
+
+function Reducer(props: any) {
+  const { children, reducer, initializerArg, initializer } = props;
+  const state = React.useReducer(reducer, initializerArg, initializer);
+  return <>{children(state)}</>;
+}
+
+function Ref<T>(props: {
+  initialValue: T;
+  children: (ref: React.MutableRefObject<T>) => JSX.Element;
+}): JSX.Element;
+function Ref<T>(props: {
+  initialValue: T | null;
+  children: (ref: React.RefObject<T>) => JSX.Element;
+}): JSX.Element;
+function Ref<T = undefined>(props: {
+  children: (ref: React.MutableRefObject<T | undefined>) => JSX.Element;
+}): JSX.Element;
+function Ref(props: any): JSX.Element {
+  const { children, initialValue } = props;
+  const ref = React.useRef(initialValue);
+  return <>{children(ref)}</>;
+}
 interface EffectProps {
   effect: React.EffectCallback;
   deps?: React.DependencyList;
@@ -69,4 +133,4 @@ function Memo<T>(props: MemoProps<T>) {
 // function DeferredValue() {}
 // function Transition() {}
 
-export { Context, State, LayoutEffect, Effect, Callback, Memo };
+export { Context, State, Reducer, Ref, LayoutEffect, Effect, Callback, Memo };
