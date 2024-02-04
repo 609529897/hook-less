@@ -2,7 +2,7 @@ import * as React from 'react';
 
 interface ContextProps<T> {
   context: React.Context<T>;
-  children: (context: T) => React.ReactNode;
+  children: (context: T) => JSX.Element;
 }
 function Context<T>(props: ContextProps<T>) {
   const { context, children } = props;
@@ -14,9 +14,9 @@ interface StateProps<S> {
   initialState: S;
   children: (
     state: [S, React.Dispatch<React.SetStateAction<S>>]
-  ) => React.ReactNode;
+  ) => JSX.Element;
 }
-function State<S = undefined>(props: StateProps<S>): React.ReactNode;
+function State<S = undefined>(props: StateProps<S>): JSX.Element;
 function State<S>(props: StateProps<S>) {
   const { initialState, children } = props;
   const state = React.useState<S>(initialState);
@@ -41,11 +41,32 @@ function Effect(props: EffectProps) {
   return null;
 }
 
-function ImperativeHandle() {}
-function Callback() {}
-function Memo() {}
-function DebugValue() {}
-function DeferredValue() {}
-function Transition() {}
+// function ImperativeHandle() {}
+interface CallbackProps<T> {
+  callback: T;
+  deps: React.DependencyList;
+  children: (callback: T) => JSX.Element;
+}
 
-export { Context, State, LayoutEffect, Effect };
+function Callback<T extends Function>(props: CallbackProps<T>) {
+  const { children, callback, deps } = props;
+  const fun = React.useCallback(callback, deps);
+  return <>{children(fun)}</>;
+}
+
+interface MemoProps<T> {
+  factory: () => T;
+  deps: React.DependencyList;
+  children: (memo: T) => JSX.Element;
+}
+function Memo<T>(props: MemoProps<T>) {
+  const { children, factory, deps } = props;
+  const memo = React.useMemo(factory, deps);
+  return <>{children(memo)}</>;
+}
+
+// function DebugValue() {}
+// function DeferredValue() {}
+// function Transition() {}
+
+export { Context, State, LayoutEffect, Effect, Callback, Memo };
